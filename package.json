@@ -26,11 +26,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.22",
+    "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }
