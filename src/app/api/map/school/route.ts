@@ -1,0 +1,54 @@
+// src/app/api/map/school.ts
+import type { NextRequest } from "next/server";
+
+interface Formation {
+    rnd: string;
+    etab_nom: string;
+    etab_gps: { lat: number; lon: number } | null;
+    nm: string[];
+    fiche: string;
+    commune: string;
+}
+
+
+const API_BASE =
+    "https://data.enseignementsup-recherche.gouv.fr/api/explore/v2.1/catalog/datasets/fr-esr-cartographie_formations_parcoursup/records";
+
+export async function GET(req: NextRequest) {
+    try {
+        const url = new URL(req.url);
+        const city = url.searchParams.get("city");
+
+        if (!city) {
+            return new Response(JSON.stringify([]), {
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        // API Parcoursup avec filtre sur commune
+        const apiUrl = `${API_BASE}?where=annee%20LIKE%20%222026%22%20AND%20commune%20LIKE%20%22${encodeURIComponent(
+            city
+        )}%22&limit=100`;
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        const formations: Formation[] = (data.results || []).map((f: any) => ({
+            rnd: f.rnd, // 👈 identifiant unique
+            etab_nom: f.etab_nom,
+            etab_gps: f.etab_gps,
+            nm: f.nm || [],
+            fiche: f.fiche,
+            commune: f.commune,
+        }));
+
+        return new Response(JSON.stringify(formations), {
+            headers: { "Content-Type": "application/json" },
+        });
+    } catch (err) {
+        console.error("Erreur API school:", err);
+        return new Response(JSON.stringify([]), {
+            headers: { "Content-Type": "application/json" },
+        });
+    }
+}
