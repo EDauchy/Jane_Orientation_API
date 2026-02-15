@@ -1,4 +1,5 @@
 import { createClient, supabaseAdmin } from '@/lib/supabase';
+import { DEFAULT_AVATAR_URL } from '@/settings';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -93,6 +94,7 @@ export async function POST(request: Request) {
             last_name: lastName,
             birth_date: birthDate,
             gender,
+            avatar_url: DEFAULT_AVATAR_URL,
         };
 
         const { error: profileError } = await supabaseAdmin
