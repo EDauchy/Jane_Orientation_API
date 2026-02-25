@@ -10,7 +10,6 @@ interface Formation {
     commune: string;
 }
 
-
 const API_BASE =
     "https://data.enseignementsup-recherche.gouv.fr/api/explore/v2.1/catalog/datasets/fr-esr-cartographie_formations_parcoursup/records";
 
@@ -18,6 +17,7 @@ export async function GET(req: NextRequest) {
     try {
         const url = new URL(req.url);
         const city = url.searchParams.get("city");
+        const type = url.searchParams.get("type");
 
         if (!city) {
             return new Response(JSON.stringify([]), {
@@ -31,9 +31,15 @@ export async function GET(req: NextRequest) {
         let hasMore = true;
 
         while (hasMore) {
-            const apiUrl = `${API_BASE}?where=annee%20LIKE%20%222026%22%20AND%20commune%20LIKE%20%22${encodeURIComponent(
-                city
-            )}%22&limit=${limit}&offset=${offset}`;
+            let whereClause = `annee LIKE "2026" AND commune LIKE "${city}"`;
+
+            if (type === "alternance") {
+                whereClause += ` AND app LIKE "Formations en apprentissage"`;
+            }
+
+            const apiUrl = `${API_BASE}?where=${encodeURIComponent(
+                whereClause
+            )}&limit=${limit}&offset=${offset}`;
 
             const res = await fetch(apiUrl);
             const data = await res.json();
