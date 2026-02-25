@@ -42,7 +42,7 @@ export async function getJobSuggestions(answers: Record<string, string>) {
     if (!apiKey) {
         serviceName = 'openai';
         apiKey = await getApiKey('openai');
-        baseURL = await getServiceBaseUrl('openai') || undefined;
+        baseURL = await getServiceBaseUrl('openai') || null;
         model = await getServiceModel('openai') || 'gpt-3.5-turbo';
     }
 
@@ -201,7 +201,7 @@ export async function batchMatchEstablishments(
     if (!apiKey) {
         serviceName = 'openai';
         apiKey = await getApiKey('openai');
-        baseURL = await getServiceBaseUrl('openai') || undefined;
+        baseURL = await getServiceBaseUrl('openai') || null;
         model = await getServiceModel('openai') || 'gpt-3.5-turbo';
     }
 
@@ -359,7 +359,7 @@ export async function doesEstablishmentMatchJobs(
     if (!apiKey) {
         serviceName = 'openai';
         apiKey = await getApiKey('openai');
-        baseURL = await getServiceBaseUrl('openai') || undefined;
+        baseURL = await getServiceBaseUrl('openai') || null;
         model = await getServiceModel('openai') || 'gpt-3.5-turbo';
     }
 
