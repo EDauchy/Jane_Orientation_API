@@ -179,8 +179,8 @@ export async function GET(request: Request) {
             .from('appointments')
             .select(`
                 *,
-                user_a:profiles!user_a_id(id, first_name, last_name),
-                user_b:profiles!user_b_id(id, first_name, last_name, user_b_details(profession, availability, years_experience))
+                user_a:profiles!user_a_id(id, first_name, last_name, avatar_url),
+                user_b:profiles!user_b_id(id, first_name, last_name, avatar_url, user_b_details(profession, availability, years_experience))
             `)
             .or(`user_a_id.eq.${user.id},user_b_id.eq.${user.id}`)
             .order('date', { ascending: false });
