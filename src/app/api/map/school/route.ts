@@ -25,16 +25,31 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        // API Parcoursup avec filtre sur commune
-        const apiUrl = `${API_BASE}?where=annee%20LIKE%20%222026%22%20AND%20commune%20LIKE%20%22${encodeURIComponent(
-            city
-        )}%22&limit=100`;
+        const limit = 100;
+        let offset = 0;
+        let allResults: any[] = [];
+        let hasMore = true;
 
-        const res = await fetch(apiUrl);
-        const data = await res.json();
+        while (hasMore) {
+            const apiUrl = `${API_BASE}?where=annee%20LIKE%20%222026%22%20AND%20commune%20LIKE%20%22${encodeURIComponent(
+                city
+            )}%22&limit=${limit}&offset=${offset}`;
 
-        const formations: Formation[] = (data.results || []).map((f: any) => ({
-            rnd: f.rnd, // 👈 identifiant unique
+            const res = await fetch(apiUrl);
+            const data = await res.json();
+
+            const results = data.results || [];
+            allResults = [...allResults, ...results];
+
+            if (results.length < limit) {
+                hasMore = false; // plus de données
+            } else {
+                offset += limit;
+            }
+        }
+
+        const formations: Formation[] = allResults.map((f: any) => ({
+            rnd: f.rnd,
             etab_nom: f.etab_nom,
             etab_gps: f.etab_gps,
             nm: f.nm || [],
@@ -45,6 +60,7 @@ export async function GET(req: NextRequest) {
         return new Response(JSON.stringify(formations), {
             headers: { "Content-Type": "application/json" },
         });
+
     } catch (err) {
         console.error("Erreur API school:", err);
         return new Response(JSON.stringify([]), {
