@@ -65,8 +65,8 @@ export async function POST(request: Request) {
         const validation = createFavoriteSchema.safeParse(normalizedBody);
 
         if (!validation.success) {
-            console.error('Validation error:', validation.error.errors);
-            return NextResponse.json({ error: validation.error.errors }, { status: 400 });
+            console.error('Validation error:', validation.error.issues);
+            return NextResponse.json({ error: validation.error.issues }, { status: 400 });
         }
 
         const { resourceType, resourceExternalId, resourceData } = validation.data;

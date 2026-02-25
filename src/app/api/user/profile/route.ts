@@ -33,7 +33,7 @@ export async function PUT(request: Request) {
         const validation = updateProfileSchema.safeParse(body);
 
         if (!validation.success) {
-            return NextResponse.json({ error: validation.error.errors }, { status: 400 });
+            return NextResponse.json({ error: validation.error.issues }, { status: 400 });
         }
 
         const { firstName, lastName, birthDate, gender, cityPreference, profession, availability } = validation.data;

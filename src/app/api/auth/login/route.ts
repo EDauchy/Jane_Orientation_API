@@ -13,7 +13,7 @@ export async function POST(request: Request) {
         const validation = loginSchema.safeParse(body);
 
         if (!validation.success) {
-            return NextResponse.json({ error: validation.error.errors }, { status: 400 });
+            return NextResponse.json({ error: validation.error.issues }, { status: 400 });
         }
 
         const { email, password } = validation.data;
