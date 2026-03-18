@@ -1,4 +1,4 @@
-import { createClient, supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { getJobSuggestions } from '@/services/llmService';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';

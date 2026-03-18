@@ -1,4 +1,4 @@
-import { createClient, supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -125,6 +125,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
                 }
             } else if (status === 'CANCELLED') {
                 updates.status = 'CANCELLED';
+                updates.meeting_link = null;
                 updates.cancelled_by = user.id; // Track who cancelled
                 updates.proposed_date = null;
                 updates.proposed_by = null;

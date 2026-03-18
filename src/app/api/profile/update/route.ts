@@ -9,6 +9,7 @@ const updateProfileSchema = z.object({
     gender: z.enum(['M', 'F', 'PREFER_NOT_SAY']).optional(),
     cityPreference: z.string().optional(),
     bio: z.string().max(500).optional(),
+    avatarUrl: z.string().url().optional(),
     yearsExperience: z.number().int().min(0).optional(),
 });
 
@@ -36,7 +37,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: validation.error.issues }, { status: 400 });
         }
 
-        const { firstName, lastName, birthDate, gender, cityPreference, bio, yearsExperience } = validation.data;
+        const { firstName, lastName, birthDate, gender, cityPreference, bio, yearsExperience, avatarUrl } = validation.data;
 
         // Update profiles table
         const updateData: any = {};
@@ -44,6 +45,7 @@ export async function PUT(request: Request) {
         if (lastName) updateData.last_name = lastName;
         if (birthDate) updateData.birth_date = birthDate;
         if (gender) updateData.gender = gender;
+        if (avatarUrl) updateData.avatar_url = avatarUrl;
         updateData.updated_at = new Date().toISOString();
 
         const { error: profileError } = await supabaseAdmin

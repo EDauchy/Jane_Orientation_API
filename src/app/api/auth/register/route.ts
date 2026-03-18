@@ -92,6 +92,7 @@ export async function POST(request: Request) {
             first_name: firstName,
             last_name: lastName,
             birth_date: birthDate,
+            avatar_url: 'https://zstouhckqlbtpzwuwesl.supabase.co/storage/v1/object/public/profiles_pictures/user-icon.png', // Default to null, user can update later
             gender,
         };
 
