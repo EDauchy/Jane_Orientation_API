@@ -30,8 +30,10 @@ export async function GET(req: NextRequest) {
         let allResults: any[] = [];
         let hasMore = true;
 
+        const year = new Date().getFullYear().toString();
+
         while (hasMore) {
-            let whereClause = `annee LIKE "2026" AND commune LIKE "${city}"`;
+            let whereClause = `annee LIKE "${year}" AND commune LIKE "${city}"`;
 
             if (type === "alternance") {
                 whereClause += ` AND app LIKE "Formations en apprentissage"`;
