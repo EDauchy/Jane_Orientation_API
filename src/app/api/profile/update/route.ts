@@ -11,6 +11,7 @@ const updateProfileSchema = z.object({
     bio: z.string().max(500).optional(),
     avatarUrl: z.string().url().optional(),
     yearsExperience: z.number().int().min(0).optional(),
+    testResults: z.array(z.string()).optional(),
 });
 
 export async function PUT(request: Request) {
@@ -37,7 +38,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: validation.error.issues }, { status: 400 });
         }
 
-        const { firstName, lastName, birthDate, gender, cityPreference, bio, yearsExperience, avatarUrl } = validation.data;
+        const { firstName, lastName, birthDate, gender, cityPreference, bio, yearsExperience, avatarUrl, testResults } = validation.data;
 
         // Update profiles table
         const updateData: any = {};
@@ -58,11 +59,15 @@ export async function PUT(request: Request) {
             return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 });
         }
 
-        // Update user_a_details if cityPreference is provided
-        if (cityPreference !== undefined) {
+        // Update user_a_details if cityPreference or testResults is provided
+        if (cityPreference !== undefined || testResults !== undefined) {
+            const userAUpdates: any = {};
+            if (cityPreference !== undefined) userAUpdates.city_preference = cityPreference;
+            if (testResults !== undefined) userAUpdates.test_results = testResults;
+
             const { error: detailsError } = await supabaseAdmin
                 .from('user_a_details')
-                .update({ city_preference: cityPreference })
+                .update(userAUpdates)
                 .eq('user_id', user.id);
 
             if (detailsError) {
