@@ -10,6 +10,7 @@
     "init-db": "tsx scripts/init-db.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.84.0",
     "dotenv": "^17.2.3",
