@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const createFavoriteSchema = z.object({
-    resourceType: z.enum(['TRAINING', 'HOUSING', 'UNIVERSITY', 'ALTERNANCE']),
+    resourceType: z.enum(['TRAINING', 'HOUSING', 'UNIVERSITY', 'ALTERNANCE', 'SCHOOL']),
     resourceExternalId: z.string(),
     resourceData: z.any(), // JSON data
 });

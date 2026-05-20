@@ -1,182 +1,15 @@
 // src/app/api/map/school/route.ts
 import type { NextRequest } from "next/server";
 import { createClient, supabaseAdmin } from "@/lib/supabase";
-
-interface Formation {
-    rnd: string;
-    etab_nom: string;
-    etab_gps: { lat: number; lon: number } | null;
-    nm: string[];
-    fiche: string;
-    commune: string;
-}
+import {
+    Formation,
+    getFormationKeywordsFromCareers,
+    matchesFormationKeywords,
+} from "@/services/formationService";
 
 const API_BASE =
     "https://data.enseignementsup-recherche.gouv.fr/api/explore/v2.1/catalog/datasets/fr-esr-cartographie_formations_parcoursup/records";
 
-const DOMAINS: { keywords: string[]; formations: string[] }[] = [
-    {
-        keywords: ["développeur", "full stack", "frontend", "backend", "devops", "architecte logiciel", "ingénieur logiciel", "chef de projet informatique", "cybersécurité", "data", "intelligence artificielle", "machine learning", "cloud", "administrateur système", "administrateur réseau", "analyste", "scrum", "product owner", "ux", "ui", "ingénieur informatique"],
-        formations: ["informatique", "numérique", "but informatique", "génie logiciel", "systèmes d'information", "réseaux", "cybersécurité", "data", "intelligence artificielle", "développement"],
-    },
-    {
-        keywords: ["médecin", "chirurgien", "généraliste", "spécialiste"],
-        formations: ["médecine", "pass", "las", "santé"],
-    },
-    {
-        keywords: ["infirmier", "aide-soignant"],
-        formations: ["infirmier", "soins infirmiers", "ifsi"],
-    },
-    {
-        keywords: ["kinésithérapeute", "kiné"],
-        formations: ["kinésithérapie", "mkde", "rééducation"],
-    },
-    {
-        keywords: ["pharmacien"],
-        formations: ["pharmacie"],
-    },
-    {
-        keywords: ["psychologue", "psychiatre"],
-        formations: ["psychologie"],
-    },
-    {
-        keywords: ["vétérinaire"],
-        formations: ["vétérinaire", "env"],
-    },
-    {
-        keywords: ["avocat", "juriste", "notaire", "magistrat"],
-        formations: ["droit", "licence droit", "sciences juridiques"],
-    },
-    {
-        keywords: ["comptable", "expert-comptable"],
-        formations: ["comptabilité", "dcg", "dscg", "finance"],
-    },
-    {
-        keywords: ["commercial", "vendeur", "technico-commercial"],
-        formations: ["commerce", "bts ndrc", "bts mco", "vente"],
-    },
-    {
-        keywords: ["marketing", "chef de produit", "chargé de marketing"],
-        formations: ["marketing", "communication", "commerce"],
-    },
-    {
-        keywords: ["manager", "directeur", "chef d'entreprise", "entrepreneur"],
-        formations: ["management", "école de commerce", "gestion"],
-    },
-    {
-        keywords: ["ressources humaines", "rh", "recruteur"],
-        formations: ["ressources humaines", "gestion", "management"],
-    },
-    {
-        keywords: ["finance", "trader", "analyste financier", "banquier", "gestionnaire"],
-        formations: ["finance", "économie", "banque", "gestion"],
-    },
-    {
-        keywords: ["ingénieur mécanique", "mécanicien"],
-        formations: ["mécanique", "génie mécanique"],
-    },
-    {
-        keywords: ["ingénieur électrique", "électronicien", "électrotechnicien"],
-        formations: ["électronique", "électrotechnique", "génie électrique"],
-    },
-    {
-        keywords: ["ingénieur chimiste", "chimiste"],
-        formations: ["chimie", "génie chimique"],
-    },
-    {
-        keywords: ["ingénieur civil", "génie civil", "conducteur de travaux"],
-        formations: ["génie civil", "bâtiment", "travaux publics"],
-    },
-    {
-        keywords: ["architecte"],
-        formations: ["architecture", "école d'architecture"],
-    },
-    {
-        keywords: ["designer", "graphiste", "webdesigner"],
-        formations: ["design", "arts appliqués", "dnmade", "graphisme"],
-    },
-    {
-        keywords: ["enseignant", "professeur", "formateur"],
-        formations: ["éducation", "meef", "professorat"],
-    },
-    {
-        keywords: ["journaliste", "rédacteur", "reporter"],
-        formations: ["journalisme", "communication", "médias"],
-    },
-    {
-        keywords: ["travailleur social", "éducateur spécialisé", "assistant social"],
-        formations: ["travail social", "éducateur spécialisé", "assistant de service social"],
-    },
-    {
-        keywords: ["animateur"],
-        formations: ["animation", "bpjeps", "jeunesse"],
-    },
-    {
-        keywords: ["cuisinier", "chef cuisinier", "pâtissier"],
-        formations: ["cuisine", "restauration", "arts culinaires", "hôtellerie"],
-    },
-    {
-        keywords: ["hôtelier", "réceptionniste"],
-        formations: ["hôtellerie", "tourisme", "bts tourisme"],
-    },
-    {
-        keywords: ["agriculteur", "agronome", "agroalimentaire"],
-        formations: ["agriculture", "agronomie", "agroalimentaire"],
-    },
-    {
-        keywords: ["environnement", "écologue", "développement durable"],
-        formations: ["environnement", "écologie", "développement durable"],
-    },
-    {
-        keywords: ["traducteur", "interprète"],
-        formations: ["langues", "traduction", "lea"],
-    },
-    {
-        keywords: ["coach sportif", "préparateur physique", "éducateur sportif"],
-        formations: ["staps", "sport", "éducation physique"],
-    },
-    {
-        keywords: ["chercheur", "scientifique"],
-        formations: ["recherche", "master", "doctorat", "sciences"],
-    },
-];
-
-function getFormationKeywordsFromCareers(careers: string[]): string[] {
-    if (!careers || careers.length === 0) return [];
-
-    const keywords = new Set<string>();
-
-    for (const career of careers) {
-        const careerLower = career.toLowerCase();
-
-        for (const domain of DOMAINS) {
-            const matched = domain.keywords.some(kw => careerLower.includes(kw));
-            if (matched) {
-                domain.formations.forEach(f => keywords.add(f.toLowerCase()));
-                break;
-            }
-        }
-    }
-
-    console.log("[school] Mots-clés générés:", Array.from(keywords));
-    return Array.from(keywords);
-}
-
-function matchesFormationKeywords(formation: any, keywords: string[]): boolean {
-    if (!keywords || keywords.length === 0) return true;
-
-    const searchableText = [
-        formation.etab_nom || "",
-        ...(formation.nm || []),
-        ...(formation.tf || []),
-        ...(formation.fl || []),
-        formation.nmc || "",
-    ]
-        .join(" ")
-        .toLowerCase();
-
-    return keywords.some((kw) => searchableText.includes(kw));
-}
 
 export async function GET(req: NextRequest) {
     try {
@@ -191,7 +24,7 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        // 1. Récupération des métiers cibles depuis Supabase
+        // Retrieving target trades from Supabase
         let testResults: string[] = [];
         try {
             const authHeader = req.headers.get("Authorization");
@@ -227,12 +60,12 @@ export async function GET(req: NextRequest) {
         console.log("[school] testResults:", testResults);
         console.log("[school] filterByJobs:", filterByJobs);
 
-        // 2. Génération des mots-clés (uniquement si le filtre est actif)
+        // Keyword generation (only if the filter is active)
         const formationKeywords = filterByJobs
             ? getFormationKeywordsFromCareers(testResults)
             : [];
 
-        // 3. Récupération paginée des formations depuis l'API Parcoursup
+        // Paged retrieval of training courses from the Parcoursup API
         const limit = 100;
         let offset = 0;
         let allResults: any[] = [];
@@ -266,7 +99,7 @@ export async function GET(req: NextRequest) {
 
         console.log("[school] Total formations récupérées:", allResults.length);
 
-        // 4. Filtrage avec les mots-clés
+        // Filtering formations based on generated keywords
         const filteredResults =
             formationKeywords.length > 0
                 ? allResults.filter((f: any) => matchesFormationKeywords(f, formationKeywords))
