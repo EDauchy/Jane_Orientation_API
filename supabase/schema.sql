@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS appointments (
 CREATE TABLE IF NOT EXISTS favorites (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id),
-  resource_type TEXT CHECK (resource_type IN ('TRAINING', 'HOUSING')),
+  resource_type TEXT CHECK (resource_type IN ('TRAINING', 'HOUSING', 'UNIVERSITY', 'ALTERNANCE', 'SCHOOL')),
   resource_external_id TEXT,
   resource_data JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
