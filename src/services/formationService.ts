@@ -7,6 +7,10 @@ export interface Formation {
     nm: string[];
     fiche: string;
     commune: string;
+    // Champs optionnels utilisés pour le matching
+    tf?: string[];
+    fl?: string[];
+    nmc?: string;
 }
 
 // Mapping entre domaines de carrière et mots-clés de formations
@@ -169,7 +173,7 @@ export function getFormationKeywordsFromCareers(careers: string[]): string[] {
  * @param keywords - Tableau des mots-clés à rechercher
  * @returns true si la formation correspond à au moins un mot-clé
  */
-export function matchesFormationKeywords(formation: any, keywords: string[]): boolean {
+export function matchesFormationKeywords(formation: Formation, keywords: string[]): boolean {
     if (!keywords || keywords.length === 0) return true;
 
     const searchableText = [

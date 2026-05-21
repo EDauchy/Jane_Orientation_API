@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
         // Paged retrieval of training courses from the Parcoursup API
         const limit = 100;
         let offset = 0;
-        let allResults: any[] = [];
+        let allResults: Formation[] = [];
         let hasMore = true;
 
         const year = new Date().getFullYear().toString();
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
             const res = await fetch(apiUrl);
             const data = await res.json();
 
-            const results = data.results || [];
+            const results: Formation[] = data.results || [];
             allResults = [...allResults, ...results];
 
             if (results.length < limit) {
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
         // Filtering formations based on generated keywords
         const filteredResults =
             formationKeywords.length > 0
-                ? allResults.filter((f: any) => matchesFormationKeywords(f, formationKeywords))
+                ? allResults.filter((f: Formation) => matchesFormationKeywords(f, formationKeywords))
                 : allResults;
 
         console.log("[school] Formations après filtrage:", filteredResults.length);
